@@ -5,34 +5,41 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/18 17:36:04 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/24 19:40:16 by hdougoud         ###   ########.fr       */
+/*   Created: 2025/11/25 14:23:24 by hdougoud          #+#    #+#             */
+/*   Updated: 2025/11/25 16:27:29 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.hpp"
+#include <cctype>
+#include <cstdlib>
+#include <iomanip>
 #include <iostream>
+#include <limits>
+#include <string>
+#include <bits/stdc++.h>
 
-ScalarConverter::ScalarConverter() : _character(0), _integer(0), _floatPoint(0), _doublePoint(0)
+using namespace std;
+
+static char		sChar;
+static int		sInt;
+static float	sFloat;
+static double	sDouble;
+
+ScalarConverter::ScalarConverter()
 {
 	return ;
 }
 
-ScalarConverter::ScalarConverter(const ScalarConverter &src) :
-	_character(src._character), _integer(src._integer), _floatPoint(src._floatPoint), _doublePoint(src._doublePoint)
+ScalarConverter::ScalarConverter(const ScalarConverter &src)
 {
+	(void) src;
 	return ;
 }
 
 ScalarConverter	&ScalarConverter::operator=(const ScalarConverter &src)
 {
-	if (this != &src)
-	{
-		_character = src._character;
-		_integer = src._integer;
-		_floatPoint = src._floatPoint;
-		_doublePoint = src._doublePoint;
-	}
+	(void) src;
 	return (*this);
 }
 
@@ -43,43 +50,76 @@ ScalarConverter::~ScalarConverter()
 
 void	ScalarConverter::convert(const std::string &value)
 {
-	ScalarConverter converter;
+	int				idx;
 
-	converter._printResult();
+	idx = _detectType(value);
+	_convertValue(idx);
+	_printResult();
+	std::cout << std::numeric_limits<float>::max() << std::endl;
+	std::cout << std::numeric_limits<int>::max() << std::endl;
+	std::cout << std::numeric_limits<double>::max() << std::endl;
 }
 
-void	ScalarConverter::detectType(const std::string &type)
+int	ScalarConverter::_detectType(std::string type)
 {
-	//use switch case
+	//bool					isFloat = false;
+	//bool					isOnlyDigit = false;
+	const unsigned int		size = type.length();
+	const char				*cstr = type.c_str();
+	std::string::iterator	it;
+
+	if (size == 1 && std::isprint(cstr[0]) && !std::isdigit(cstr[0]))
+	{
+		sChar = cstr[0];
+		return (0);
+	}
+	for(it = type.begin(); it != type.end() && isdigit(*it); it++)
+	{
+
+	}
+	//if(sFloat == static_cast<int>(sFloat))
+	//std:::fixed << std::precision(2)
+	//	std::cout << "same" << std::endl;
+	return 4;
 }
 
-void	ScalarConverter::convertData(int idx)
+void	ScalarConverter::_convertValue(int idx)
 {
 	switch (idx)
 	{
 		case 0:
-			this->_integer = static_cast<int>(this->_character);
-			this->_floatPoint = static_cast<float>(this->_character);
-			this->_doublePoint = static_cast<double>(this->_character);
+			sInt = static_cast<int>(sChar);
+			sFloat = static_cast<float>(sChar);
+			sDouble = static_cast<double>(sChar);
+			break ;
 		case 1:
-			this->_character = static_cast<char>(this->_integer);
-			this->_floatPoint = static_cast<float>(this->_integer);
-			this->_doublePoint = static_cast<double>(this->_integer);
+			sChar = static_cast<char>(sInt);
+			sFloat = static_cast<float>(sInt);
+			sDouble = static_cast<double>(sInt);
+			break ;
 		case 2:
-			this->_character = static_cast<char>(this->_floatPoint);
-			this->_integer = static_cast<int>(this->_floatPoint);
-			this->_doublePoint = static_cast<double>(this->_floatPoint);
+			sChar = static_cast<char>(sFloat);
+			sInt = static_cast<int>(sFloat);
+			sDouble = static_cast<double>(sFloat);
+			break ;
 		case 3:
-			this->_character = static_cast<char>(this->_doublePoint);
-			this->_integer = static_cast<int>(this->_integer);
-			this->_floatPoint = static_cast<float>(this->_floatPoint);
+			sChar = static_cast<char>(sDouble);
+			sInt = static_cast<int>(sInt);
+			sFloat = static_cast<float>(sFloat);
+			break ;
+		default:
+			sChar = '0';
+			sInt = 0;
+			sFloat = 0;
+			sDouble = 0;
 	}
 }
 
 void	ScalarConverter::_printResult(void)
 {
-	std::cout << "char: " << this->_character << "\n" //TODO: add one color per type
-	<< "int: " << this->_integer << "\n"
-	<< "float: " << this->_floatPoint << "f\n"
-	<< "double: " << this->_doublePoint << std::endl;
+	//TODO:: add exception
+	std::cout << "char: " << sChar << "\n" //TODO: add one color per type
+	<< "int: " << sInt << "\n"
+	<< "float: " << std::fixed << std::setprecision(1) << sFloat << "f\n"
+	<< "double: " << sDouble << std::endl;
 }

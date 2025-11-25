@@ -6,7 +6,7 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 08:56:48 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/21 17:28:33 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/25 16:27:01 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,8 @@ class ScalarConverter
 		ScalarConverter &operator=(const ScalarConverter &src);
 		~ScalarConverter();
 
-		void	_detectType(const std::string &type);
-		void	_printResult(void);
-		char	_character;
-		int		_integer;
-		float	_floatPoint;
-		double	_doublePoint;
+		static int	_detectType(std::string type);
+		static void	_convertValue(int idx);
+		static void	_printResult(void);
 };
+
