@@ -6,18 +6,17 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/25 14:23:24 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/25 16:27:29 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/26 23:31:25 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.hpp"
 #include <cctype>
+#include <cmath>
 #include <cstdlib>
-#include <iomanip>
 #include <iostream>
-#include <limits>
 #include <string>
-#include <bits/stdc++.h>
+#include "color.hpp"
 
 using namespace std;
 
@@ -55,31 +54,40 @@ void	ScalarConverter::convert(const std::string &value)
 	idx = _detectType(value);
 	_convertValue(idx);
 	_printResult();
-	std::cout << std::numeric_limits<float>::max() << std::endl;
-	std::cout << std::numeric_limits<int>::max() << std::endl;
-	std::cout << std::numeric_limits<double>::max() << std::endl;
 }
 
 int	ScalarConverter::_detectType(std::string type)
 {
-	//bool					isFloat = false;
-	//bool					isOnlyDigit = false;
-	const unsigned int		size = type.length();
-	const char				*cstr = type.c_str();
 	std::string::iterator	it;
+	const char				*cstr = type.c_str();
 
-	if (size == 1 && std::isprint(cstr[0]) && !std::isdigit(cstr[0]))
+	if (type.length() == 1 && std::isprint(cstr[0]) && !std::isdigit(cstr[0]))
 	{
 		sChar = cstr[0];
 		return (0);
 	}
-	for(it = type.begin(); it != type.end() && isdigit(*it); it++)
+	if (it == type.end())
 	{
-
+		sInt = std::strtol(cstr, NULL, 10);
+		return (1);
 	}
-	//if(sFloat == static_cast<int>(sFloat))
-	//std:::fixed << std::precision(2)
-	//	std::cout << "same" << std::endl;
+	it++;
+	if (*it == '.')
+	{	
+		for(it = type.begin(); it != type.end() && isdigit(*it); it++)
+			;
+		if (it == type.end())
+		{
+			sDouble = std::strtod(cstr, NULL);
+			return (3);
+		}
+		it++;
+		if (*it == 'f' && it == type.end())
+		{
+			sFloat = std::strtod(cstr, NULL);
+			return (2);
+		}
+	}
 	return 4;
 }
 
@@ -117,9 +125,16 @@ void	ScalarConverter::_convertValue(int idx)
 
 void	ScalarConverter::_printResult(void)
 {
-	//TODO:: add exception
-	std::cout << "char: " << sChar << "\n" //TODO: add one color per type
-	<< "int: " << sInt << "\n"
-	<< "float: " << std::fixed << std::setprecision(1) << sFloat << "f\n"
-	<< "double: " << sDouble << std::endl;
+	std::cout << C_PURPLE << "char:   ";
+	isprint(sChar) ? std::cout << sChar << "\n" : std::cout << "N/A\n";
+	std::cout << C_PINK << "int:    " << sInt << "\n";
+	std::cout << C_CORAL << "float:  " << sFloat;
+	if (std::floor(sFloat) == sFloat)
+		std::cout << ".0";
+	std::cout << "f" << "\n";
+	std::cout << C_MAGENTA << "double: " << sDouble;
+	if (floor(sFloat) == sFloat)
+		std::cout << ".0";
+	std::cout << RESET << std::endl;
 }
+
