@@ -6,7 +6,7 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/18 08:56:48 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/25 16:27:01 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/27 14:31:13 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,16 @@ class ScalarConverter
 		ScalarConverter &operator=(const ScalarConverter &src);
 		~ScalarConverter();
 
-		static int	_detectType(std::string type);
-		static void	_convertValue(int idx);
-		static void	_printResult(void);
+		int	_detectType(std::string type);
+		void	_convertValue(int idx);
+		void	_printResult(void);
 };
 
+enum TYPE {
+	CHAR,
+	INT,
+	FLOAT,
+	DOUBLE,
+	PSEUDO,
+	IMPOSSIBLE,
+};

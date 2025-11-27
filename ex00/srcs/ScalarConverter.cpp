@@ -6,7 +6,7 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/25 14:23:24 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/26 23:31:25 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/27 16:37:22 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,20 @@
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
+#include <errno.h>
 #include <iostream>
+#include <limits>
 #include <string>
 #include "color.hpp"
 
-using namespace std;
-
-static char		sChar;
-static int		sInt;
-static float	sFloat;
-static double	sDouble;
+int		detectType(std::string type);
+void	convertValue(const std::string &type, int idx);
+void	printPseudo(const std::string &value);
+void	printPseudo(const std::string &value);
+void	castAndPrintValue(char value);
+void	castAndPrintValue(int value);
+void	castAndPrintValue(float value);
+void	castAndPrintValue(double value);
 
 ScalarConverter::ScalarConverter()
 {
@@ -51,90 +55,98 @@ void	ScalarConverter::convert(const std::string &value)
 {
 	int				idx;
 
-	idx = _detectType(value);
-	_convertValue(idx);
-	_printResult();
+	idx = detectType(value);
+	convertValue(value, idx);
 }
 
-int	ScalarConverter::_detectType(std::string type)
+int	detectType(std::string type)
 {
+	errno = 0;
 	std::string::iterator	it;
 	const char				*cstr = type.c_str();
 
-	if (type.length() == 1 && std::isprint(cstr[0]) && !std::isdigit(cstr[0]))
-	{
-		sChar = cstr[0];
-		return (0);
-	}
+	if (type == "nan" || type == "nanf" || type ==  "inf" || type == "-inf" || type == "inff" || type == "-inff")
+		return (PSEUDO);
+	if (type.length() == 1 && std::isprint(static_cast<unsigned char>(cstr[0])) && !std::isdigit(cstr[0]))
+		return (CHAR);
+	for(it = type.begin(); it != type.end() && isdigit(*it); it++)
+		;
 	if (it == type.end())
 	{
-		sInt = std::strtol(cstr, NULL, 10);
-		return (1);
+		long	temp;
+
+		temp	= std::strtol(cstr, NULL, 10);
+		if (!(temp > std::numeric_limits<int>::max() || temp < std::numeric_limits<int>::min()) && !errno)
+			return (INT);
+		return (IMPOSSIBLE);
 	}
-	it++;
 	if (*it == '.')
-	{	
-		for(it = type.begin(); it != type.end() && isdigit(*it); it++)
-			;
+	{
+		it++;
+		while (it != type.end() && isdigit(*it))
+			it++;
 		if (it == type.end())
-		{
-			sDouble = std::strtod(cstr, NULL);
-			return (3);
-		}
+			return (DOUBLE);
 		it++;
 		if (*it == 'f' && it == type.end())
-		{
-			sFloat = std::strtod(cstr, NULL);
-			return (2);
-		}
+			return (FLOAT);
 	}
-	return 4;
+	return (IMPOSSIBLE);
 }
 
-void	ScalarConverter::_convertValue(int idx)
+void	convertValue(const std::string &type, int idx)
 {
-	switch (idx)
+	switch(idx)
 	{
-		case 0:
-			sInt = static_cast<int>(sChar);
-			sFloat = static_cast<float>(sChar);
-			sDouble = static_cast<double>(sChar);
-			break ;
-		case 1:
-			sChar = static_cast<char>(sInt);
-			sFloat = static_cast<float>(sInt);
-			sDouble = static_cast<double>(sInt);
-			break ;
-		case 2:
-			sChar = static_cast<char>(sFloat);
-			sInt = static_cast<int>(sFloat);
-			sDouble = static_cast<double>(sFloat);
-			break ;
-		case 3:
-			sChar = static_cast<char>(sDouble);
-			sInt = static_cast<int>(sInt);
-			sFloat = static_cast<float>(sFloat);
-			break ;
-		default:
-			sChar = '0';
-			sInt = 0;
-			sFloat = 0;
-			sDouble = 0;
-	}
+		case CHAR:
+			castAndPrintValue(type.c_str()[0]);
+			return ;
+		case INT:
+			castAndPrintValue(static_cast<int>(strtol(type.c_str(), NULL, 10)));
+			break;
+		case FLOAT:
+			break;
+		case DOUBLE:
+			break;
+		case PSEUDO:
+			
+			return;
+		std::cout << C_RED
+		<< "Impossible\n"
+		<< "Impossible\n"
+		<< "Impossible\n"
+		<< "Impossible"
+		<< RESET << std::endl;
+	};
 }
 
-void	ScalarConverter::_printResult(void)
+void	printPseudo(const std::string &value)
 {
-	std::cout << C_PURPLE << "char:   ";
-	isprint(sChar) ? std::cout << sChar << "\n" : std::cout << "N/A\n";
-	std::cout << C_PINK << "int:    " << sInt << "\n";
-	std::cout << C_CORAL << "float:  " << sFloat;
-	if (std::floor(sFloat) == sFloat)
-		std::cout << ".0";
-	std::cout << "f" << "\n";
-	std::cout << C_MAGENTA << "double: " << sDouble;
-	if (floor(sFloat) == sFloat)
-		std::cout << ".0";
-	std::cout << RESET << std::endl;
+	(void) value;
+}
+
+void	castAndPrintValue(char value)
+{
+	std::cout << C_PURPLE << "char: " << value << "\n" \
+	<< C_MAGENTA << "int: " << static_cast<int>(value) << "\n" \
+	<< C_PINK << "float: " << static_cast<float>(value) << ".0f\n" \
+	<< C_CORAL << "double: " << static_cast<double>(value) << ".0\n" << RESET << std::endl;
+}
+
+void	castAndPrintValue(int value)
+{
+	std::cout << value << std::endl;
+}
+
+void	castAndPrintValue(float value)
+{
+	std::cout << "char: ";
+	value < 0 || value > 128 ? std::cout << "impossible" : isprint(value) ? 
+	
+}
+
+void	castAndPrintValue(double value)
+{
+	(void) value;
 }
 
