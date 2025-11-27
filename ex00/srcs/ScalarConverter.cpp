@@ -6,28 +6,27 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/25 14:23:24 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/27 16:37:22 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/27 23:06:54 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.hpp"
 #include <cctype>
-#include <cmath>
 #include <cstdlib>
 #include <errno.h>
+#include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <limits>
 #include <string>
 #include "color.hpp"
 
-int		detectType(std::string type);
-void	convertValue(const std::string &type, int idx);
-void	printPseudo(const std::string &value);
 void	printPseudo(const std::string &value);
 void	castAndPrintValue(char value);
 void	castAndPrintValue(int value);
-void	castAndPrintValue(float value);
-void	castAndPrintValue(double value);
+void	castAndPrintValue(float value, unsigned int precision);
+void	castAndPrintValue(double value, unsigned int precision);
+void	printImpossible(void);
 
 ScalarConverter::ScalarConverter()
 {
@@ -51,102 +50,129 @@ ScalarConverter::~ScalarConverter()
 	return ;
 }
 
-void	ScalarConverter::convert(const std::string &value)
-{
-	int				idx;
-
-	idx = detectType(value);
-	convertValue(value, idx);
-}
-
-int	detectType(std::string type)
+void	ScalarConverter::convert(std::string type)
 {
 	errno = 0;
 	std::string::iterator	it;
-	const char				*cstr = type.c_str();
 
 	if (type == "nan" || type == "nanf" || type ==  "inf" || type == "-inf" || type == "inff" || type == "-inff")
-		return (PSEUDO);
-	if (type.length() == 1 && std::isprint(static_cast<unsigned char>(cstr[0])) && !std::isdigit(cstr[0]))
-		return (CHAR);
+	{
+		printPseudo(type);
+		return ;
+	}
+
+	if (type.length() == 1 && std::isprint(static_cast<unsigned char>(type.c_str()[0])) && !std::isdigit(type.c_str()[0]))
+	{
+		castAndPrintValue(type.c_str()[0]);
+		return ;
+	}
+
 	for(it = type.begin(); it != type.end() && isdigit(*it); it++)
 		;
 	if (it == type.end())
 	{
-		long	temp;
-
-		temp	= std::strtol(cstr, NULL, 10);
-		if (!(temp > std::numeric_limits<int>::max() || temp < std::numeric_limits<int>::min()) && !errno)
-			return (INT);
-		return (IMPOSSIBLE);
+		long tint = std::strtol(type.c_str(), NULL, 10);
+		if (!(tint > std::numeric_limits<int>::max() || tint < std::numeric_limits<int>::min()) && !errno)
+		{
+			castAndPrintValue(static_cast<int>(tint));
+			return ;
+		}
+		printImpossible();
+		return ;
 	}
+
 	if (*it == '.')
 	{
 		it++;
+		unsigned int precision = std::distance(it, type.end() - 1);
 		while (it != type.end() && isdigit(*it))
 			it++;
 		if (it == type.end())
-			return (DOUBLE);
-		it++;
-		if (*it == 'f' && it == type.end())
-			return (FLOAT);
-	}
-	return (IMPOSSIBLE);
-}
-
-void	convertValue(const std::string &type, int idx)
-{
-	switch(idx)
-	{
-		case CHAR:
-			castAndPrintValue(type.c_str()[0]);
+		{
+			double tdouble = (strtod(type.c_str(), NULL));
+			if (errno)
+			{
+				printImpossible();
+				return ;
+			}
+			castAndPrintValue(tdouble, precision);
 			return ;
-		case INT:
-			castAndPrintValue(static_cast<int>(strtol(type.c_str(), NULL, 10)));
-			break;
-		case FLOAT:
-			break;
-		case DOUBLE:
-			break;
-		case PSEUDO:
-			
-			return;
-		std::cout << C_RED
-		<< "Impossible\n"
-		<< "Impossible\n"
-		<< "Impossible\n"
-		<< "Impossible"
-		<< RESET << std::endl;
-	};
+		}
+		if (*it == 'f' && ++it == type.end())
+		{
+			float tfloat = (strtof(type.c_str(), NULL));
+			if (errno)
+			{
+				printImpossible();
+				return ;
+			}
+			castAndPrintValue(tfloat, precision - 1);
+			return ;
+		}
+	}
+	printImpossible();
 }
 
 void	printPseudo(const std::string &value)
 {
+	std::cout << C_PURPLE << "char: " << "impossible\n";
+	std::cout << C_MAGENTA << "int: " << "impossible\n";
 	(void) value;
 }
 
 void	castAndPrintValue(char value)
 {
-	std::cout << C_PURPLE << "char: " << value << "\n" \
+	std::cout << std::fixed << std::setprecision(1) \
+	<< C_PURPLE << "char: " << value << "\n" \
 	<< C_MAGENTA << "int: " << static_cast<int>(value) << "\n" \
-	<< C_PINK << "float: " << static_cast<float>(value) << ".0f\n" \
-	<< C_CORAL << "double: " << static_cast<double>(value) << ".0\n" << RESET << std::endl;
+	<< C_PINK << "float: " << static_cast<float>(value) << "f\n" \
+	<< C_CORAL << "double: " << static_cast<double>(value)  << RESET << std::endl;
 }
 
 void	castAndPrintValue(int value)
 {
-	std::cout << value << std::endl;
+	std::cout << std::fixed << std::setprecision(1);
+	std::cout << C_PINK << "char: ";
+	value < 0 || value > 128 ? std::cout << "impossible" : (isprint(value) ? std::cout << static_cast<char>(value) : std::cout << "non displayable");
+	std::cout << "\n";
+	std::cout << C_MAGENTA << "int: " << value << "\n";
+	std::cout << C_PINK << "float: " << static_cast<float>(value) << "f\n";
+	std::cout << C_CORAL << std::fixed << std::setprecision(1) << "double: " << static_cast<double>(value) << "\n";
 }
 
-void	castAndPrintValue(float value)
+void	castAndPrintValue(float value, unsigned int precision)
 {
-	std::cout << "char: ";
-	value < 0 || value > 128 ? std::cout << "impossible" : isprint(value) ? 
 	
+	std::cout << C_PINK << "char: ";
+	value < 0 || value > 128 ? std::cout << "impossible" : (isprint(value) ? std::cout << static_cast<char>(value) : std::cout << "non displayable");
+	std::cout << "\n";
+
+	std::cout << C_PINK << "int: ";
+	(value > std::numeric_limits<int>::max() || value < std::numeric_limits<int>::min()) ? std::cout << "impossible" : std::cout << static_cast<int>(value);
+	std::cout << "\n";
+
+	std::cout << std::fixed << std::setprecision(precision) << "float: ";
 }
 
-void	castAndPrintValue(double value)
+void	castAndPrintValue(double value, unsigned int precision)
 {
-	(void) value;
+	std::cout << C_PINK << "char: ";
+	value < 0 || value > 128 ? std::cout << "impossible" : (isprint(value) ? std::cout << static_cast<char>(value) : std::cout << "non displayable");
+	std::cout << "\n";
+
+	std::cout << C_PINK << "int: ";
+	(value > std::numeric_limits<int>::max() || value < std::numeric_limits<int>::min()) ? std::cout << "impossible" : std::cout << static_cast<int>(value);
+	std::cout << "\n";
+
+	std::cout << std::fixed << std::setprecision(precision) << "float: ";
 }
 
+void	printImpossible(void)
+{
+	std::cout << C_RED
+	<< "impossible\n"
+	<< "impossible\n"
+	<< "impossible\n"
+	<< "impossible"
+	<< RESET << std::endl;
+}
