@@ -6,7 +6,7 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:17:39 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/28 18:18:28 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/28 23:40:24 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int main(void)
 	uintptr_t	dataInt;
 	Data		*dataPtr;
 
-	dataPtr = createData("Hello", 10);
+	dataPtr = createData("Hello World", 10);
 	dataInt = Serializer::serialize(dataPtr);
 	dataPtr = NULL;
 	printData(dataPtr);
