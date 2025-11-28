@@ -6,7 +6,7 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:17:39 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/28 15:34:57 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/28 18:11:53 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 #include "Serializer.hpp"
 #include "data.hpp"
 
-Data *createData(std::string str, int nb);
+void	printData(Data *data);
+Data	*createData(std::string str, int nb);
 
 int main(void)
 {
@@ -24,18 +25,27 @@ int main(void)
 	Data		*dataPtr;
 
 	dataPtr = createData("Hello", 10);
-	dataInt = Serializer(dataPtr);
+	dataInt = Serializer::serialize(dataPtr);
+	dataPtr = NULL;
+	printData(dataPtr);
+	dataPtr = Serializer::deserialize(dataInt);
+	printData(dataPtr);
+	delete dataPtr;
 	return (0);
 }
 
 void	printData(Data *data)
 {
 	if (!data)
+	{
 		std::cout << C_YELLOW << "data is null" << RESET << std::endl;
-
+		return ;
+	}
+	std::cout << data->str << "\n" \
+		<< data->nb << std::endl; 
 }
 
-Data *createData(std::string str, int nb)
+Data	*createData(std::string str, int nb)
 {
 	Data *ptr = new Data();
 	
