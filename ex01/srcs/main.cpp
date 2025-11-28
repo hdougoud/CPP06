@@ -6,7 +6,7 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/28 15:17:39 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/28 18:11:53 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/28 18:18:28 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@ void	printData(Data *data)
 		std::cout << C_YELLOW << "data is null" << RESET << std::endl;
 		return ;
 	}
-	std::cout << data->str << "\n" \
-		<< data->nb << std::endl; 
+	std::cout << C_BLUE << data->str << "\n" \
+		<< data->nb << RESET <<RESET <<  std::endl; 
 }
 
 Data	*createData(std::string str, int nb)
