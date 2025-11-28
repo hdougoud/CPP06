@@ -6,7 +6,7 @@
 /*   By: hdougoud <hdougoud@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 10:28:06 by hdougoud          #+#    #+#             */
-/*   Updated: 2025/11/27 14:22:38 by hdougoud         ###   ########.fr       */
+/*   Updated: 2025/11/28 11:33:47 by hdougoud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # define C_PINK		"\033[38;5;206m"
 # define C_CORAL	"\033[38;5;210m"
 # define C_MAGENTA	"\033[38;5;201m"
+# define C_WHITE	"\033[38;5;15m"
 
 //C++ Colors
 # define C_CSTR			"\033[38;5;10m"		//Constructor color
